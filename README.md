@@ -14,3 +14,54 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+detectives-del-estres-vegetal/
+│
+├── public/                     # Archivos estáticos
+│   └── favicon.svg
+│
+├── src/
+│   ├── app/                    # Configuración global
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── routes.tsx
+│   │
+│   ├── assets/                 # Recursos (no públicos)
+│   │   ├── images/
+│   │   └── styles/
+│   │
+│   ├── components/             # UI reutilizable (presentacional)
+│   │   ├── ui/
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
+│   │   │   └── Loader.tsx
+│   │   │
+│   │   └── layout/
+│   │       ├── Navbar.tsx
+│   │       └── Container.tsx
+│   │
+│   ├── features/               # LÓGICA POR DOMINIO
+│   ├── pages/                  # Vistas principales
+
+│   │
+│   ├── hooks/                  # Hooks globales
+│   │  
+│   │
+│   ├── services/               # APIs externas
+│   │  
+│   │
+│   │
+│   ├── utils/                  # Funciones puras compartidas
+│   │  
+│   │
+
+│
+├── tests/
+│   └── stress-detection.test.ts
+│
+├── .env
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md

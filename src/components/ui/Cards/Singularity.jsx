@@ -1,121 +1,164 @@
 import React from "react";
-import { Card, Typography, Grid } from "antd";
+import { Card, Typography, Button, Grid, Space } from "antd";
+import { motion } from "framer-motion";
 
-const { Title, Paragraph, Link } = Typography;
+const { Title, Paragraph, Text } = Typography;
 const { useBreakpoint } = Grid;
-
+import { useNavigate } from "react-router-dom";
 const SingularityCard = ({
-    website,
-    email,
-    instagram,
-    facebook,
+    image,
+    description,
+    social = [],
+    onSocialClick,
 }) => {
     const screens = useBreakpoint();
     const isMobile = !screens.md;
+    const navigate = useNavigate();
 
     return (
         <Card
             hoverable
             style={{
                 width: "100%",
-                maxWidth: 420,
-                margin: "40px auto",
+                maxWidth: 900,
+                margin: isMobile ? "16px auto" : "40px auto",
                 borderRadius: 22,
                 overflow: "hidden",
+                border: "2px solid rgba(0,0,0,0.08)",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-                transition: "all 0.3s ease",
-                textAlign: "center",
             }}
             styles={{
                 body: {
-                    padding: isMobile ? 24 : 32,
+                    padding: 0,
                 },
             }}
         >
             <div
                 style={{
                     display: "flex",
-                    flexDirection: "column",
-                    gap: 18,
+                    flexDirection: isMobile ? "column" : "row",
                 }}
             >
-                {/* Header */}
-                <div>
-                    <Title
-                        level={isMobile ? 3 : 2}
-                        style={{
-                            marginBottom: 8,
-                            letterSpacing: -0.4,
-                        }}
-                    >
-                        Singularity
-                    </Title>
-
-                    <Paragraph
-                        style={{
-                            fontSize: 15,
-                            color: "#555",
-                            lineHeight: 1.6,
-                            margin: 0,
-                        }}
-                    >
-                        Somos un colectivo de ciencia abierta
-                    </Paragraph>
-                </div>
-
-                {/* Divider visual */}
+                {/* IMAGE / BRAND SIDE */}
                 <div
                     style={{
-                        width: "60%",
-                        height: 1,
-                        background: "rgba(0,0,0,0.08)",
-                        margin: "8px auto",
-                    }}
-                />
-
-                {/* Contacto */}
-                <div
-                    style={{
+                        width: isMobile ? "100%" : "45%",
+                        height: isMobile ? 180 : 420,
+                        background: "#0f0f0f",
                         display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                        fontSize: 14,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        position: "relative",
                     }}
                 >
-                    {website && (
-                        <Link href={website} target="_blank">
-                            🌐 {website}
-                        </Link>
+                    {image && (
+                        <motion.img
+                            src={image}
+                            alt="Singularity"
+                            initial={{ opacity: 0, scale: 1.1 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6 }}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                filter: "drop-shadow(0px 10px 20px rgba(0,0,0,0.4))",
+                            }}
+                        />
                     )}
 
-                    {email && (
-                        <Link href={`mailto:${email}`}>
-                            ✉️ {email}
-                        </Link>
-                    )}
+                    <div
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            background:
+                                "linear-gradient(to top, rgba(0,0,0,0.4), transparent)",
+                        }}
+                    />
+                </div>
 
-                    {instagram && (
-                        <Link href={instagram} target="_blank">
-                            📸 Instagram
-                        </Link>
-                    )}
+                {/* CONTENT */}
+                <div
+                    style={{
+                        width: isMobile ? "100%" : "55%",
+                        padding: isMobile ? "16px 18px" : 48,
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        background: "#fff",
+                    }}
+                >
+                    <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                        >
+                            <Title level={isMobile ? 3 : 2}>
+                                Singularity
+                            </Title>
+                        </motion.div>
 
-                    {facebook && (
-                        <Link href={facebook} target="_blank">
-                            👍 Facebook
-                        </Link>
-                    )}
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <Paragraph
+                                style={{
+                                    fontSize: isMobile ? 14 : 16,
+                                    color: "#555",
+                                    lineHeight: 1.7,
+                                    marginBottom: 20,
+                                }}
+                            >
+                                {description ||
+                                    "Somos un equipo enfocado en inteligencia artificial, ingeniería de software y sistemas interactivos. Construimos experiencias tecnológicas que conectan datos, ciencia y percepción."}
+                            </Paragraph>
+                        </motion.div>
+
+                        <Text strong style={{ display: "block", marginBottom: 10 }}>
+                            Encuéntranos en:
+                        </Text>
+
+                        <Space
+                            wrap
+                            size={[10, 10]}
+                            style={{ marginBottom: isMobile ? 14 : 0 }}
+                        >
+                            {social.map((s, i) => (
+                                <Button
+                                    key={i}
+                                    type="default"
+                                    onClick={() => onSocialClick?.(s)}
+                                    style={{
+                                        borderRadius: 999,
+                                        padding: "4px 14px",
+                                        height: 36,
+                                    }}
+                                >
+                                    {s.label}
+                                </Button>
+                            ))}
+                        </Space>
+                    </div>
+
+                    {/* FOOTER CTA opcional */}
+                    <div style={{ marginTop: isMobile ? 16 : 24 }}>
+                        <Button
+                            type="primary"
+                            block
+                            onClick={()=>{window.open("https://singularitymx.org/")}}
+                            style={{
+                                height: 44,
+                                borderRadius: 10,
+                                fontSize: 15,
+                            }}
+                        >
+                            Sitio web
+                        </Button>
+                    </div>
                 </div>
             </div>
-
-            <style>
-                {`
-                .ant-card:hover {
-                    transform: translateY(-6px);
-                    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
-                }
-                `}
-            </style>
         </Card>
     );
 };

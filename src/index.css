@@ -11,8 +11,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+--heading: 'Inter', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -52,8 +52,15 @@
 
 body {
   margin: 0;
+  font-family: var(--sans);
 }
-
+.navbar-menu .ant-menu-item,
+.navbar-menu .ant-menu-title-content {
+  font-family: var(--sans);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  font-size: 15px;
+}
 #root {
   width: 100vw;
   height: 100vh;

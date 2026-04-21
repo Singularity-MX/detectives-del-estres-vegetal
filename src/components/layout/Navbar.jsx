@@ -33,6 +33,7 @@ const Navbar = ({
                 justifyContent: isMobile ? "center" : "space-between",
                 background: "#000",
                 padding: "0 16px",
+                userSelect: "none",
             }}
         >
             {/* LOGO */}
@@ -62,18 +63,19 @@ const Navbar = ({
 
             {/* DESKTOP MENU */}
             {!isMobile && (
-                <Menu
-                    mode="horizontal"
-                    theme="dark"
-                    onClick={handleClick}
-                    style={{
-                        background: "transparent",
-                        border: "none",
-                        flex: 1,
-                        justifyContent: "flex-end",
-                    }}
-                    items={items}
-                />
+               <Menu
+    mode="horizontal"
+    theme="dark"
+    onClick={handleClick}
+    className="navbar-menu"
+    style={{
+        background: "transparent",
+        border: "none",
+        flex: 1,
+        justifyContent: "flex-end",
+    }}
+    items={items}
+/>
             )}
 
             {/* MOBILE HAMBURGER */}
@@ -171,12 +173,15 @@ const Navbar = ({
             font-weight: 500;
         }
 
-        .ant-menu-item:hover {
-            background: rgba(0,0,0,0.04) !important;
-        }
+.ant-menu-item-selected {
+    background: transparent !important;
+    color: #fff !important; /* o el color que quieras */
+}
 
-        .ant-menu-horizontal .ant-menu-item:hover {
-    color: #ccc !important;
+.ant-menu-horizontal .ant-menu-item-selected {
+    border-bottom: 2px solid #fff !important; /* opcional */
+    color: #fff !important;
+}
 }
         `}
     </style>

@@ -14,7 +14,7 @@
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
 --heading: 'Inter', system-ui, -apple-system, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-
+-webkit-tap-highlight-color: transparent;
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -115,4 +115,7 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+* {
+  -webkit-tap-highlight-color: transparent;
 }

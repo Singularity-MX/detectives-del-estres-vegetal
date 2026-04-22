@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, Button, Typography, Grid } from "antd";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 const { Title, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -18,7 +19,18 @@ const HeroCard = ({
     const isMobile = !screens.md;
 
     const [imgLoaded, setImgLoaded] = useState(false);
+const [isTiny, setIsTiny] = useState(false);
 
+useEffect(() => {
+    const handleResize = () => {
+        setIsTiny(window.innerWidth < 365);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+}, []);
     const containerVariants = {
         hidden: {},
         visible: {
@@ -39,15 +51,15 @@ const HeroCard = ({
                         display: "flex",
                         flexWrap: "wrap",
                         gap: 8,
-                        marginBottom: isMobile ? 14 : 0,
+                        marginTop: 6,
                     }}
                 >
                     {keywords.map((kw, index) => (
                         <span
                             key={index}
                             style={{
-                                fontSize: isMobile ? 11 : 12,
-                                padding: isMobile ? "4px 8px" : "5px 10px",
+                                fontSize: 12,
+                                padding: "4px 10px",
                                 borderRadius: 999,
                                 background: "rgba(0,0,0,0.05)",
                                 border: "1px solid rgba(0,0,0,0.08)",
@@ -67,8 +79,8 @@ const HeroCard = ({
             style={{
                 width: "100%",
                 maxWidth: 1050,
-                height: isMobile ? "auto" : 550,
-                margin: "40px auto",
+                height: isMobile ? "auto" : 560,
+                margin: isMobile ? "16px auto" : "40px auto",
                 borderRadius: 22,
                 overflow: "hidden",
                 border: "2px solid rgba(0,0,0,0.08)",
@@ -85,15 +97,16 @@ const HeroCard = ({
             <div
                 style={{
                     display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
+                    flexDirection: isTiny ? "column" : isMobile ? "column" : "row",
                     height: "100%",
                 }}
             >
                 {/* IMAGE */}
+                {!isTiny && (
                 <div
                     style={{
                         width: isMobile ? "100%" : "50%",
-                        height: isMobile ? 260 : "100%",
+                        height: isMobile ? 180 : "100%",
                         overflow: "hidden",
                         position: "relative",
                         background: "#eee",
@@ -125,101 +138,122 @@ const HeroCard = ({
                         }}
                     />
                 </div>
-
+                )}
                 {/* CONTENT */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     style={{
-                        width: isMobile ? "100%" : "50%",
-                        height: "100%",
+                        width: isTiny ? "100%" : isMobile ? "100%" : "50%",
                         display: "flex",
                         flexDirection: "column",
-                        justifyContent: isMobile ? "flex-start" : "space-between",
-                        padding: isMobile ? 20 : 48,
+                        justifyContent: "space-between",
+                        padding: isMobile ? "14px 16px" : 48,
                         background: "#fff",
+                        gap: isMobile ? 14 : 26,
                     }}
                 >
-                    <div>
-                        {/* TITLE */}
-                        <motion.div variants={itemVariants}>
-                            <Title
-                                level={isMobile ? 3 : 2}
-                                style={{ marginBottom: 12 }}
-                            >
-                                {title}
-                            </Title>
-                        </motion.div>
+                   {/* ================= TITLE ================= */}
+<motion.div variants={itemVariants}>
+    <Title
+        level={isMobile ? 4 : 2}
+        style={{
+            marginBottom: isMobile ? 6 : 10,
+        }}
+    >
+        {title}
+    </Title>
+</motion.div>
 
-                        {/* KEYWORDS (solo arriba en mobile) */}
-                        {isMobile && <Keywords />}
+{/* ================= DESCRIPTION ================= */}
+<motion.div variants={itemVariants}>
+    <Paragraph
+        style={{
+            fontSize: isMobile ? 14 : 16,
+            color: "#555",
+            lineHeight: 1.6,
+            marginBottom: isMobile ? 10 : 14,
+        }}
+    >
+        {isTiny ? description.slice(0, 110) + "..." : description}
+    </Paragraph>
+</motion.div>
 
-                        {/* DESCRIPTION */}
-                        <motion.div variants={itemVariants}>
-                            <Paragraph
-                                style={{
-                                    fontSize: 16,
-                                    color: "#555",
-                                    lineHeight: 1.7,
-                                    marginBottom: 20,
-                                }}
-                            >
-                                {description}
-                            </Paragraph>
-                        </motion.div>
-
-                        {/* META */}
-                        <motion.div variants={itemVariants}>
-                            <div
-                                style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: 8,
-                                    marginBottom: 18,
-                                }}
-                            >
-                                {Object.entries(meta).map(([key, value]) => (
-                                    <div
-                                        key={key}
-                                        style={{
-                                            display: "flex",
-                                            gap: 6,
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        <span style={{ fontWeight: 600 }}>
-                                            {key}:
-                                        </span>
-                                        <span style={{ color: "#555" }}>
-                                            {value}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.div>
-
-                        {/* KEYWORDS (posición original en desktop) */}
-                        {!isMobile && <Keywords />}
-                    </div>
-
-                    {/* CTA */}
+{/* ================= KEYWORDS  ================= */}
+{keywords.length > 0 && (
+    <motion.div variants={itemVariants}>
+        <div
+            style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginBottom: isMobile ? 10 : 18,
+            }}
+        >
+            {keywords.map((kw, index) => (
+                <span
+                    key={index}
+                    style={{
+                        fontSize: 12,
+                        padding: "4px 10px",
+                        borderRadius: 999,
+                        background: "rgba(0,0,0,0.05)",
+                        border: "1px solid rgba(0,0,0,0.08)",
+                        whiteSpace: "nowrap",
+                    }}
+                >
+                    {kw}
+                </span>
+            ))}
+        </div>
+    </motion.div>
+)}
+                    {/* ================= META ================= */}
                     <motion.div variants={itemVariants}>
-                        <div style={{ marginTop: isMobile ? 20 : 30 }}>
-                            <Button
-                                type="primary"
-                                size="large"
-                                onClick={onClick}
-                                style={{
-                                    borderRadius: 10,
-                                    height: 46,
-                                    width: isMobile ? "100%" : "80%",
-                                    fontSize: 16,
-                                }}
-                            >
-                                {buttonText}
-                            </Button>
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: isMobile ? 6 : 10,
+                                fontSize: isMobile ? 13 : 14,
+                            }}
+                        >
+                            {Object.entries(meta).map(([key, value]) => (
+                                <div
+                                    key={key}
+                                    style={{
+                                        display: "flex",
+                                        gap: 6,
+                                    }}
+                                >
+                                    <span style={{ fontWeight: 600 }}>
+                                        {key}:
+                                    </span>
+                                    <span style={{ color: "#555" }}>
+                                        {value}
+                                    </span>
+                                </div>
+                            ))}
                         </div>
+                    </motion.div>
+
+                    {/* ================= CTA ================= */}
+                    <motion.div variants={itemVariants}>
+                        <Button
+                            type="primary"
+                            size="large"
+                            onClick={onClick}
+                            style={{
+                                borderRadius: 10,
+                                height: 44,
+                                width: "100%",
+                                fontSize: 15,
+                                marginTop: isMobile ? 10 : 18,
+                            }}
+                        >
+                            {buttonText}
+                        </Button>
                     </motion.div>
                 </motion.div>
             </div>

@@ -1,218 +1,345 @@
-import React, { useRef, useState } from "react";
-import { Card, Button, Typography, Grid, Space, Segmented } from "antd";
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  Button,
+  Typography,
+  Grid,
+  Space,
+  Segmented,
+  Modal,
+} from "antd";
 
-const { Title, Paragraph, Text } = Typography;
+import {
+  UploadOutlined,
+  CameraOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+
+import { useImageAnalysis } from "../../../hooks/useImageAnalysis";
+import { computeIndex } from "../../../utils/imageAnalysis";
+
+const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 
 const ScanCard = () => {
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
+  const [open, setOpen] = useState(false);
+
   const fileInputRef = useRef(null);
-  const canvasRef = useRef(null);
-  const imgRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
-  const [imageSrc, setImageSrc] = useState(null);
-  const [rgb, setRgb] = useState({ r: "-", g: "-", b: "-" });
-  const [points, setPoints] = useState([]);
-  const [mode, setMode] = useState("single");
+  const {
+    canvasRef,
+    imgRef,
+    imageSrc,
+    rgb,
+    points,
+    mode,
+    setMode,
+    handleFile,
+    handleClick,
+    reset,
+  } = useImageAnalysis();
 
-  /* =========================
-     LOAD IMAGE
-  ========================= */
-  const handleFile = (file) => {
-    if (!file) return;
+const handleLoad = (file, inputRef) => {
+  if (!file) return;
 
-    const url = URL.createObjectURL(file);
-    setImageSrc(url);
-    setPoints([]);
-    setRgb({ r: "-", g: "-", b: "-" });
-  };
+  handleFile(file);
 
-  const onInputChange = (e) => {
-    const file = e.target.files?.[0];
-    handleFile(file);
-  };
+  if (inputRef?.current) {
+    inputRef.current.value = "";
+  }
 
-  /* =========================
-     CANVAS
-  ========================= */
-  const drawToCanvas = () => {
-    const img = imgRef.current;
-    const canvas = canvasRef.current;
-    if (!img || !canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+  requestAnimationFrame(() => {
+    setOpen(true);
+  });
+};
 
-    ctx.drawImage(img, 0, 0);
-  };
+const handleImageLoad = () => {
+  const canvas = canvasRef.current;
+  const img = imgRef.current;
 
-  /* =========================
-     CLICK HANDLER
-  ========================= */
-  const getAveragePixel = (ctx, x, y, size = 11) => {
-    const half = Math.floor(size / 2);
+  if (!canvas || !img) return;
 
-    let r = 0, g = 0, b = 0, count = 0;
+  const ctx = canvas.getContext("2d");
 
-    for (let dx = -half; dx <= half; dx++) {
-      for (let dy = -half; dy <= half; dy++) {
-        const px = x + dx;
-        const py = y + dy;
+  if (!img.naturalWidth) return; 
 
-        if (
-          px >= 0 &&
-          py >= 0 &&
-          px < ctx.canvas.width &&
-          py < ctx.canvas.height
-        ) {
-          const data = ctx.getImageData(px, py, 1, 1).data;
-          r += data[0];
-          g += data[1];
-          b += data[2];
-          count++;
-        }
-      }
-    }
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
 
-    return {
-      r: Math.round(r / count),
-      g: Math.round(g / count),
-      b: Math.round(b / count),
-    };
-  };
-
-  const handleClick = (e) => {
-    const imgEl = imgRef.current;
-    const canvas = canvasRef.current;
-    if (!imgEl || !canvas) return;
-
-    const rect = imgEl.getBoundingClientRect();
-
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
-
-    const naturalRatio = imgEl.naturalWidth / imgEl.naturalHeight;
-    const displayRatio = rect.width / rect.height;
-
-    let renderWidth, renderHeight, offsetX, offsetY;
-
-    if (displayRatio > naturalRatio) {
-      renderHeight = rect.height;
-      renderWidth = renderHeight * naturalRatio;
-      offsetX = (rect.width - renderWidth) / 2;
-      offsetY = 0;
-    } else {
-      renderWidth = rect.width;
-      renderHeight = renderWidth / naturalRatio;
-      offsetX = 0;
-      offsetY = (rect.height - renderHeight) / 2;
-    }
-
-    if (
-      clickX < offsetX ||
-      clickX > offsetX + renderWidth ||
-      clickY < offsetY ||
-      clickY > offsetY + renderHeight
-    )
-      return;
-
-    const normX = (clickX - offsetX) / renderWidth;
-    const normY = (clickY - offsetY) / renderHeight;
-
-    const realX = Math.floor(normX * imgEl.naturalWidth);
-    const realY = Math.floor(normY * imgEl.naturalHeight);
-
-    const ctx = canvas.getContext("2d");
-    const avg = getAveragePixel(ctx, realX, realY, 11);
-
-    const imgX = offsetX + normX * renderWidth;
-    const imgY = offsetY + normY * renderHeight;
-
-    const newPoint = { imgX, imgY, ...avg };
-
-    if (mode === "single") {
-      setPoints([newPoint]);
-      setRgb(avg);
-    } else {
-      const updated = [...points, newPoint];
-      setPoints(updated);
-
-      const sum = updated.reduce(
-        (a, p) => ({
-          r: a.r + p.r,
-          g: a.g + p.g,
-          b: a.b + p.b,
-        }),
-        { r: 0, g: 0, b: 0 }
-      );
-
-      setRgb({
-        r: Math.round(sum.r / updated.length),
-        g: Math.round(sum.g / updated.length),
-        b: Math.round(sum.b / updated.length),
-      });
-    }
-  };
-
-  /* =========================
-     INDEX
-  ========================= */
-  const computeIndex = () => {
-    if (rgb.r === "-") return "-";
-    return ((rgb.g - rgb.r) / (rgb.g + rgb.r)).toFixed(3);
-  };
-
-  /* =========================
-     RESET
-  ========================= */
-  const handleReset = () => {
-    setPoints([]);
-    setRgb({ r: "-", g: "-", b: "-" });
-  };
+  ctx.drawImage(img, 0, 0);
+};
 
   return (
-    <Card
-      style={{
-        width: "100%",
-        maxWidth: 1100,
-        margin: "40px auto",
-        borderRadius: 22,
-        overflow: "hidden",
-        border: "2px solid rgba(0,0,0,0.08)",
-      }}
-      styles={{ body: { padding: 0 } }}
-    >
-      <div
+    <>
+      {/* ================= CARD ================= */}
+      <motion.div
+      style={{ width: "100%", display: "flex", justifyContent: "center" }}
+  initial={{ opacity: 0, y: 30 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+      <Card
         style={{
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
+          width: "100%",
+          maxWidth: 480,
+          margin: isMobile ? "12px auto" : "40px auto",
+          borderRadius: 20,
+          border: "1px solid rgba(0, 0, 0, 0.21)",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
         }}
       >
-        {/* VISOR */}
+        {/*  TÍTULO */}
+        <Title level={4} style={{ marginBottom: 12 }}>
+          Escáner RGB
+        </Title>
+
+        {/*  ACCIONES PRINCIPALES */}
         <div
           style={{
-            width: isMobile ? "100%" : "60%",
-            height: isMobile ? 300 : 550,
-            background: "#111",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
+            gap: 10,
+            marginBottom: 16,
           }}
         >
-          {!imageSrc ? (
-            <Text style={{ color: "#999" }}>
-              Carga una imagen para comenzar
-            </Text>
-          ) : (
-            <div style={{ position: "relative", width: "100%", height: "100%" }}>
+          <Button
+            block
+            icon={<UploadOutlined />}
+            onClick={() => fileInputRef.current.click()}
+          >
+            Subir imagen
+          </Button>
+<motion.div whileTap={{ scale: 0.9 }}>
+          <Button
+            type="primary"
+            style={{ width: 60}}
+            icon={<CameraOutlined />}
+            onClick={() => cameraInputRef.current.click()}
+          />
+          </motion.div>
+        </div>
+
+        {/*  MODO */}
+        <div style={{ marginBottom: 12 }}>
+          <Text strong>Modo de muestreo</Text>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+  <Segmented
+    value={mode}
+    onChange={setMode}
+    options={[
+      { label: "Punto", value: "single" },
+      { label: "Múltiple", value: "multi" },
+    ]}
+    style={{
+      marginBottom: 16,
+      padding: 4,
+      background: "#f0f0f0",
+    }}
+  />
+</div>
+
+        {/*  ACCIÓN PRINCIPAL */}
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            marginBottom: 18,
+          }}
+        >
+          <motion.div whileTap={{ scale: 0.95 }} style={{ flex: 1 }}>
+          <Button
+            type="default"
+            block
+            disabled={!imageSrc}
+            onClick={() => setOpen(true)}
+            style={{
+              background: "#000",
+              color: "#fff",
+              borderColor: "#000",
+            }}
+          >
+            Muestrear
+          </Button>
+          </motion.div>
+<motion.div whileTap={{ rotate: 90 }}>
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={reset}
+            style={{ width: 60}}
+          />
+          </motion.div>
+        </div>
+
+        {/*  INPUTS */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) =>
+            handleLoad(e.target.files?.[0], fileInputRef)
+          }
+        />
+
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          hidden
+          onChange={(e) =>
+            handleLoad(e.target.files?.[0], cameraInputRef)
+          }
+        />
+
+        {/*  RESULTADOS */}
+  <motion.div layout
+  style={{
+    marginTop: 10,
+    padding: 14,
+    borderRadius: 14,
+    background: "#f7f7f7",
+    border: "1px solid rgba(0,0,0,0.06)",
+  }}
+>
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: 12,
+      alignItems: "center",
+    }}
+  >
+    {/*  PREVIEW */}
+    <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  }}
+>
+  {/*  IMAGEN */}
+  <div
+    style={{
+      width: "100%",
+      height: 110,
+      borderRadius: 10,
+      overflow: "hidden",
+      background: "#ddd",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    {imageSrc ? (
+      <img
+        src={imageSrc}
+        alt="preview"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    ) : (
+      <Text type="secondary">Sin imagen</Text>
+    )}
+  </div>
+
+  {/*  COLOR RESULTANTE */}
+  <div
+    style={{
+      width: "100%",
+      height: 36,
+      borderRadius: 8,
+      border: "1px solid rgba(0,0,0,0.1)",
+      background:
+        rgb.r === "-" ? "#ccc" : `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 11,
+      color: rgb.r === "-" ? "#666" : "#fff",
+      fontWeight: 500,
+    }}
+  >
+    {rgb.r === "-"
+      ? "Sin muestra"
+      : `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
+  </div>
+</div>
+
+    {/*  DATOS */}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+      }}
+    >
+      {[
+        { label: "R", value: rgb.r },
+        { label: "G", value: rgb.g },
+        { label: "B", value: rgb.b },
+        { label: "ICV", value: computeIndex(rgb) },
+      ].map((item) => (
+        <div
+          key={item.label}
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "6px 10px",
+            borderRadius: 8,
+            background: "#fff",
+            border: "1px solid rgba(0,0,0,0.05)",
+            fontSize: 13,
+          }}
+        >
+          <Text strong>{item.label}</Text>
+          <Text>{item.value}</Text>
+        </div>
+      ))}
+    </div>
+  </div>
+</motion.div>
+      </Card>
+</motion.div>
+      {/* ================= MODAL ================= */}
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={isMobile ? "100%" : 800}
+        centered
+        styles={{
+          body: {
+            padding: 0,
+            background: "#000",
+          },
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: isMobile ? "70vh" : 500,
+          }}
+        >
+          {imageSrc && (
+            <>
               <img
                 ref={imgRef}
                 src={imageSrc}
-                onLoad={drawToCanvas}
+                onLoad={handleImageLoad}
                 onClick={handleClick}
                 style={{
                   width: "100%",
@@ -227,8 +354,8 @@ const ScanCard = () => {
                   key={i}
                   style={{
                     position: "absolute",
-                    left: p.imgX - 5,
-                    top: p.imgY - 5,
+                    left: p.x - 5,
+                    top: p.y - 5,
                     width: 10,
                     height: 10,
                     borderRadius: "50%",
@@ -238,105 +365,25 @@ const ScanCard = () => {
                   }}
                 />
               ))}
-            </div>
-          )}
 
-          <canvas ref={canvasRef} style={{ display: "none" }} />
+              <canvas ref={canvasRef} style={{ display: "none" }} />
+            </>
+          )}
         </div>
 
-        {/* PANEL */}
         <div
           style={{
-            width: isMobile ? "100%" : "40%",
-            padding: isMobile ? 20 : 32,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            minHeight: 550,
+            padding: 12,
+            textAlign: "center",
+            background: "#111",
           }}
         >
-          <Title level={3}>Explorador RGB</Title>
-
-          <Segmented
-            value={mode}
-            onChange={setMode}
-            options={[
-              { label: "1 punto", value: "single" },
-              { label: "Múltiples", value: "multi" },
-            ]}
-          />
-
-          <Space wrap>
-            <Button type="primary" onClick={() => fileInputRef.current.click()}>
-              Subir
-            </Button>
-
-            <Button onClick={() => fileInputRef.current.click()}>
-              Cámara
-            </Button>
-
-            <Button danger onClick={handleReset}>
-              Limpiar
-            </Button>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              hidden
-              onChange={onInputChange}
-            />
-          </Space>
-
-          {/* BLOQUE ESTABLE RGB + COLOR */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: 16,
-              borderRadius: 12,
-              background: "#f5f5f5",
-              minHeight: 110,
-            }}
-          >
-            <div>
-              <Text strong>RGB</Text>
-              <div>
-                R: {rgb.r} <br />
-                G: {rgb.g} <br />
-                B: {rgb.b}
-              </div>
-            </div>
-
-            <div
-              style={{
-                width: 70,
-                height: 70,
-                borderRadius: 10,
-                background:
-                  rgb.r === "-"
-                    ? "#ccc"
-                    : `rgb(${rgb.r},${rgb.g},${rgb.b})`,
-              }}
-            />
-          </div>
-
-          {/* INDEX */}
-          <div
-            style={{
-              padding: 16,
-              borderRadius: 12,
-              background: "#eaeaea",
-            }}
-          >
-            <Text strong>Índice</Text>
-            <div style={{ fontSize: 20 }}>{computeIndex()}</div>
-          </div>
+          <Button type="primary" onClick={() => setOpen(false)}>
+            Confirmar
+          </Button>
         </div>
-      </div>
-    </Card>
+      </Modal>
+    </>
   );
 };
 

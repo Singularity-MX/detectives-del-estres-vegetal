@@ -8,7 +8,7 @@ import { usePageLoader } from "../hooks/usePageLoader";
 
 import logo from "../assets/Logo.png";
 import letras from "../assets/Singularity.png";
-import hoja from "../assets/cardSingularity.jpg";
+import hoja from "../assets/cardSingularity.webp";
 
 import SvgComponent from "../assets/textura.jsx";
 import SingularityCard from "../components/ui/Cards/Singularity";

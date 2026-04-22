@@ -1,12 +1,11 @@
 import React from "react";
 import { Layout } from "antd";
 import Navbar from "../components/layout/Navbar";
-import HeroCard from "../components/ui/Cards/HeroCard";
+
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Logo.png";
 import letras from "../assets/Singularity.png";
-import hoja from "../assets/imgs/ndvi.png";
-import fondo from "../assets/map.svg";
+
 import SvgComponent from "../assets/textura.jsx";
 
 const Background = () => (

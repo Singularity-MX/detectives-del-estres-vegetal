@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, Button, Typography, Grid } from "antd";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 const { Title, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -18,7 +19,18 @@ const HeroCard = ({
     const isMobile = !screens.md;
 
     const [imgLoaded, setImgLoaded] = useState(false);
+const [isTiny, setIsTiny] = useState(false);
 
+useEffect(() => {
+    const handleResize = () => {
+        setIsTiny(window.innerWidth < 365);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+}, []);
     const containerVariants = {
         hidden: {},
         visible: {
@@ -85,11 +97,12 @@ const HeroCard = ({
             <div
                 style={{
                     display: "flex",
-                    flexDirection: isMobile ? "column" : "row",
+                    flexDirection: isTiny ? "column" : isMobile ? "column" : "row",
                     height: "100%",
                 }}
             >
                 {/* IMAGE */}
+                {!isTiny && (
                 <div
                     style={{
                         width: isMobile ? "100%" : "50%",
@@ -125,14 +138,14 @@ const HeroCard = ({
                         }}
                     />
                 </div>
-
+                )}
                 {/* CONTENT */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     style={{
-                        width: isMobile ? "100%" : "50%",
+                        width: isTiny ? "100%" : isMobile ? "100%" : "50%",
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
@@ -163,7 +176,7 @@ const HeroCard = ({
             marginBottom: isMobile ? 10 : 14,
         }}
     >
-        {description}
+        {isTiny ? description.slice(0, 110) + "..." : description}
     </Paragraph>
 </motion.div>
 

@@ -3,23 +3,23 @@
 
 ## Índice
 
-1.  Descripción
-2.  Objetivo
-3.  Ficha técnica
-4.  Fundamento teórico
-5.  Algoritmo
-6.  Limitaciones del Índice Cromático de Vegetación
-7.  Requisitos
-8.  Uso de la herramienta
-9.  Metodología del taller
-10.  Resultados esperados
-11.  Evidencias
-12.  Consideraciones
-13.  Recursos
-14.  Versionamiento
-15.  Contribuciones
-16.  Créditos
-17.  Sobre Singularity
+1. [Descripción](#descripción)
+2. [Objetivo](#objetivo)
+3. [Ficha técnica](#ficha-técnica)
+4. [Fundamento teórico](#fundamento-teórico)
+5. [Pipeline computacional implementado](#pipeline-computacional-implementado)
+6. [Limitaciones del Índice Cromático de Vegetación](#limitaciones-del-índice-cromático-de-vegetación)
+7. [Requisitos](#requisitos)
+8. [Uso de la herramienta](#uso-de-la-herramienta)
+9. [Metodología del taller](#metodología-del-taller)
+10. [Resultados esperados](#resultados-esperados)
+11. [Evidencias](#evidencias)
+12. [Consideraciones](#consideraciones)
+13. [Recursos](#recursos)
+14. [Versionamiento](#versionamiento)
+15. [Contribuciones](#contribuciones)
+16. [Créditos](#créditos)
+17. [Sobre Singularity](#sobre-singularity)
 
 ## Descripción
 
@@ -38,7 +38,7 @@ Que los participantes comprendan cómo un sistema computacional transforma infor
 - Nombre: Detectives del Estrés Vegetal  
 - Duración: 1.5 horas (90 minutos)  
 - Lugar: IMJU Parque Hidalgo  
-- Participantes: 30 personas  
+- Participantes: 45 personas  
 - Modalidad: Taller práctico con apoyo digital  
 
 ## Fundamento teórico
@@ -47,9 +47,16 @@ El taller se basa en la representación digital del color mediante el modelo RGB
 
 El espacio de color RGB es ampliamente utilizado en sistemas computacionales debido a su compatibilidad directa con sensores ópticos (cámaras digitales), pantallas y dispositivos de adquisición de imágenes. A diferencia de otros modelos de color perceptuales (como HSV o CIE-Lab), RGB representa de forma directa la composición física de la luz emitida o capturada, lo que lo hace especialmente adecuado para procesos de adquisición y análisis computacional de imágenes sin transformaciones intermedias.
 
-A partir de estos valores se construye un índice simplificado inspirado en técnicas de teledetección vegetal como el NDVI (Normalized Difference Vegetation Index), permitiendo aproximar el estado fisiológico de una hoja mediante relaciones entre canales de color. Este valor simplificado se denomina Índice Cromático de Vegetación (ICV) y se expresa de la siguiente manera:
+A partir de estos valores se construye un índice simplificado inspirado en técnicas de teledetección vegetal como el NDVI (Normalized Difference Vegetation Index), permitiendo aproximar el estado fisiológico de una hoja mediante relaciones entre canales de color. Este valor simplificado se denomina Índice Cromático de Vegetación (ICV) y se calcula mediante una variante del Excess Green Index (ExG), definida como:
 
-ICV = (G - R) / (G + R)
+ICV ≈ ExG = (2G - R - B) / (R + G + B)
+
+donde:
+
+-   R: componente rojo del espacio RGB\
+-   G: componente verde del espacio RGB\
+-   B: componente azul del espacio RGB
+
 
 Esta expresión constituye una aproximación empírica y pedagógica del Índice de Vegetación de Diferencia Normalizada (NDVI), el cual se define formalmente como:
 
@@ -57,10 +64,49 @@ NDVI = (NIR - R) / (NIR + R)
 
 Como se observa, el NDVI incorpora la banda del infrarrojo cercano (NIR, Near-Infrared), la cual es capturada mediante sensores especializados presentes en plataformas satelitales o aerotransportadas. Esta banda es fundamental debido a que la vegetación sana refleja fuertemente la radiación en el espectro infrarrojo cercano, lo cual permite estimar con alta precisión su actividad fotosintética y contenido de biomasa.
 
-Para fines prácticos de este taller, al no contar con imágenes multiespectrales ni sensores NIR, se sustituye dicha componente por el canal rojo ( R ) del espacio RGB. Esta sustitución implica una reducción significativa en la fidelidad espectral del modelo, por lo que el Índice Cromático de Vegetación (ICV) propuesto no debe interpretarse como una equivalencia del NDVI, sino como una simplificación didáctica orientada a la comprensión conceptual de cómo las relaciones entre canales de color pueden utilizarse para inferir patrones de salud vegetal.
+Para fines prácticos de este taller, al no contar con imágenes multiespectrales ni sensores NIR, se elimina la dependencia del infrarrojo cercano (NIR) y se construye una aproximación empírica basada únicamente en el espacio RGB, dando lugar a un índice cromático derivado del Excess Green Index (ExG) con interpretación heurística del vigor vegetal. Esta formulación implica una reducción en la fidelidad espectral respecto a índices multiespectrales como el NDVI, por lo que el Índice Cromático de Vegetación (ICV) debe interpretarse como un descriptor cromático computacional basado en RGB y no como un equivalente físico del NDVI., sino como una simplificación didáctica orientada a la comprensión conceptual de cómo las relaciones entre canales de color pueden utilizarse para inferir patrones de salud vegetal.
 
-### Algoritmo
-[Explicar el algoritmo de la herramienta]
+
+## Pipeline computacional implementado
+
+El cálculo del ICV se basa en un promedio espacial de píxeles dentro de
+una región de interés.
+
+### 1. Muestreo espacial
+
+Se utiliza una ventana cuadrada alrededor del punto seleccionado para
+obtener un conjunto de píxeles representativos.
+
+### 2. Filtrado por luminancia
+
+Se eliminan píxeles con valores extremos de iluminación:
+
+L = 0.2126R + 0.7152G + 0.0722B
+
+-   Se descartan valores muy oscuros (\<20)
+-   Se descartan valores muy brillantes (\>240)
+
+### 3. Promedio RGB
+
+Se calcula el promedio de los canales RGB válidos:
+
+(R, G, B) = (Σr / N, Σg / N, Σb / N)
+
+### 4. Cálculo del índice
+
+ICV = (2G - R - B) / (R + G + B)
+
+
+## Interpretación del modelo
+
+El índice se fundamenta en la premisa de que la vegetación sana presenta
+una mayor reflectancia en el canal verde, mientras que la absorción en
+los canales rojo y azul es más pronunciada debido a la actividad
+fotosintética de la clorofila.
+
+-   Valores positivos altos → vegetación vigorosa\
+-   Valores cercanos a cero → estado intermedio\
+-   Valores negativos → posible estrés vegetal
 
 ### Limitaciones del Índice Cromático de Vegetación
 
@@ -78,7 +124,7 @@ Debido a la naturaleza simplificada del Índice Cromático de Vegetación (ICV),
 - **Desviación respecto a interpretaciones biológicas del NDVI:**  
   Debido a la sustitución del canal NIR por el canal rojo, el comportamiento del ICV no es directamente comparable con el NDVI. En consecuencia, valores numéricos similares no implican equivalencia en términos de salud vegetal.
 
-  Por ejemplo, una hoja sana de color verde oscuro puede generar valores cercanos a 0.3 en el ICV, lo cual, bajo la lógica del NDVI, podría interpretarse incorrectamente como un estado de estrés moderado. Esta discrepancia evidencia que el índice no debe utilizarse como herramienta diagnóstica, sino como un modelo didáctico de aproximación conceptual.
+El ICV es un descriptor cromático computacional derivado de información RGB, no un indicador biológico directo. Su propósito es educativo, exploratorio y de aproximación conceptual al análisis de vegetación mediante visión computacional.
 
 
 ## Requisitos
@@ -110,33 +156,6 @@ https://detectives-del-estres-vegetal.vercel.app/
 4. Obtener los valores correspondientes al modelo RGB (Rojo, Verde, Azul).  
 5. Registrar los valores obtenidos en la bitácora de análisis.  
 
-## Metodología del taller
-
-El taller se desarrolla en cinco etapas secuenciales orientadas a la comprensión progresiva de la relación entre color, representación digital y análisis de salud vegetal.
-
-### 1. Introducción conceptual (10–12 min)
-Se contextualiza el concepto de estrés vegetal desde la biología básica, explicando cómo factores como agua, luz y nutrientes influyen en la coloración de las hojas. Posteriormente se introduce la idea de que una computadora no interpreta colores, sino representaciones numéricas de la imagen.
-
-### 2. Representación digital del color (10 min)
-Se explica el modelo RGB como sistema de codificación de imágenes digitales, donde cada píxel se representa mediante tres canales (R, G, B) con valores entre 0 y 255.
-
-### 3. Modelo analítico simplificado (7–10 min)
-Se presenta un índice cromático inspirado en NDVI:
-
-ICV = (G - R) / (G + R)
-
-Se explica su interpretación general como aproximación didáctica del estado de la vegetación.
-
-### 4. Práctica con herramienta digital (25 min)
-Los participantes, organizados en equipos, utilizan la aplicación web para:
-- Capturar o cargar imágenes de hojas
-- Extraer valores RGB
-- Calcular el índice cromático
-- Clasificar el estado de la hoja
-
-### 5. Análisis y cierre (10–15 min)
-Se comparan resultados entre equipos, se discuten variaciones en las mediciones y se introducen aplicaciones reales del concepto, como el NDVI en teledetección y monitoreo ambiental.
-
 ## Resultados esperados
 
 - Comprensión de la representación digital del color mediante el modelo RGB
@@ -158,7 +177,7 @@ Se comparan resultados entre equipos, se discuten variaciones en las mediciones 
 -   La actividad es adaptable a un modo offline mediante el uso de imágenes previamente almacenadas.
 
 ## Recursos
-### Presentación
+### Presentación PENDIENTE CARGARLA
 
 Se encuentra adjunta en el repositorio en la siguiente ruta:  
 `src/documents/presentation.pdf`
@@ -174,7 +193,8 @@ Durante el evento se capturarán evidencias fotográficas con fines de documenta
 Estas podrán publicarse en las redes sociales del colectivo.
 
 Adicionalmente, se dispondrá de una carpeta de respaldo accesible en el siguiente enlace:  
-`[insertar enlace a Drive]`
+[https://goo.su/rTtYf6d](https://goo.su/rTtYf6d)
+
 
 ### Branding del evento
 
@@ -188,16 +208,6 @@ Incluye:
 -   Portada para Eventbrite
 -   Ficha técnica del evento
 -   Material para difusión en WhatsApp
-
-### Constancias
-
-Singularity ha desarrollado una herramienta para la generación automatizada de constancias para los participantes de sus eventos.
-
-Esta herramienta no se encuentra dentro de este repositorio, pero puede consultarse en el siguiente enlace:  
-`[link del repositorio de constancias]`
-
-El template utilizado para el diseño gráfico de constancias se encuentra en el proyecto de Figma:  
-**“Brand Singularity”**
 
 ## Versionamiento
 

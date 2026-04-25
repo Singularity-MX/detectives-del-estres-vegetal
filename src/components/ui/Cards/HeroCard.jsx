@@ -19,18 +19,18 @@ const HeroCard = ({
     const isMobile = !screens.md;
 
     const [imgLoaded, setImgLoaded] = useState(false);
-const [isTiny, setIsTiny] = useState(false);
+    const [isTiny, setIsTiny] = useState(false);
 
-useEffect(() => {
-    const handleResize = () => {
-        setIsTiny(window.innerWidth < 365);
-    };
+    useEffect(() => {
+        const handleResize = () => {
+            setIsTiny(window.innerWidth < 365);
+        };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+        handleResize();
+        window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener("resize", handleResize);
-}, []);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
     const containerVariants = {
         hidden: {},
         visible: {
@@ -103,41 +103,41 @@ useEffect(() => {
             >
                 {/* IMAGE */}
                 {!isTiny && (
-                <div
-                    style={{
-                        width: isMobile ? "100%" : "50%",
-                        height: isMobile ? 180 : "100%",
-                        overflow: "hidden",
-                        position: "relative",
-                        background: "#eee",
-                    }}
-                >
-                    <motion.img
-                        src={image}
-                        alt="hero"
-                        onLoad={() => setImgLoaded(true)}
-                        initial={{ scale: 1.1, opacity: 0 }}
-                        animate={{
-                            scale: imgLoaded ? 1 : 1.1,
-                            opacity: imgLoaded ? 1 : 0,
-                        }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                        }}
-                    />
-
                     <div
                         style={{
-                            position: "absolute",
-                            inset: 0,
-                            background:
-                                "linear-gradient(to top, rgba(0,0,0,0.25), transparent)",
+                            width: isMobile ? "100%" : "50%",
+                            height: isMobile ? 180 : "100%",
+                            overflow: "hidden",
+                            position: "relative",
+                            background: "#eee",
                         }}
-                    />
-                </div>
+                    >
+                        <motion.img
+                            src={image}
+                            alt="hero"
+                            onLoad={() => setImgLoaded(true)}
+                            initial={{ scale: 1.1, opacity: 0 }}
+                            animate={{
+                                scale: imgLoaded ? 1 : 1.1,
+                                opacity: imgLoaded ? 1 : 0,
+                            }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                            }}
+                        />
+
+                        <div
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                    "linear-gradient(to top, rgba(0,0,0,0.25), transparent)",
+                            }}
+                        />
+                    </div>
                 )}
                 {/* CONTENT */}
                 <motion.div
@@ -154,61 +154,61 @@ useEffect(() => {
                         gap: isMobile ? 14 : 26,
                     }}
                 >
-                   {/* ================= TITLE ================= */}
-<motion.div variants={itemVariants}>
-    <Title
-        level={isMobile ? 4 : 2}
-        style={{
-            marginBottom: isMobile ? 6 : 10,
-        }}
-    >
-        {title}
-    </Title>
-</motion.div>
+                    {/* ================= TITLE ================= */}
+                    <motion.div variants={itemVariants}>
+                        <Title
+                            level={isMobile ? 4 : 2}
+                            style={{
+                                marginBottom: isMobile ? 6 : 10,
+                            }}
+                        >
+                            {title}
+                        </Title>
+                    </motion.div>
 
-{/* ================= DESCRIPTION ================= */}
-<motion.div variants={itemVariants}>
-    <Paragraph
-        style={{
-            fontSize: isMobile ? 14 : 16,
-            color: "#555",
-            lineHeight: 1.6,
-            marginBottom: isMobile ? 10 : 14,
-        }}
-    >
-        {isTiny ? description.slice(0, 110) + "..." : description}
-    </Paragraph>
-</motion.div>
+                    {/* ================= DESCRIPTION ================= */}
+                    <motion.div variants={itemVariants}>
+                        <Paragraph
+                            style={{
+                                fontSize: isMobile ? 14 : 16,
+                                color: "#555",
+                                lineHeight: 1.6,
+                                marginBottom: isMobile ? 10 : 14,
+                            }}
+                        >
+                            {isTiny ? description.slice(0, 110) + "..." : description}
+                        </Paragraph>
+                    </motion.div>
 
-{/* ================= KEYWORDS  ================= */}
-{keywords.length > 0 && (
-    <motion.div variants={itemVariants}>
-        <div
-            style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 8,
-                marginBottom: isMobile ? 10 : 18,
-            }}
-        >
-            {keywords.map((kw, index) => (
-                <span
-                    key={index}
-                    style={{
-                        fontSize: 12,
-                        padding: "4px 10px",
-                        borderRadius: 999,
-                        background: "rgba(0,0,0,0.05)",
-                        border: "1px solid rgba(0,0,0,0.08)",
-                        whiteSpace: "nowrap",
-                    }}
-                >
-                    {kw}
-                </span>
-            ))}
-        </div>
-    </motion.div>
-)}
+                    {/* ================= KEYWORDS  ================= */}
+                    {keywords.length > 0 && (
+                        <motion.div variants={itemVariants}>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 8,
+                                    marginBottom: isMobile ? 10 : 18,
+                                }}
+                            >
+                                {keywords.map((kw, index) => (
+                                    <span
+                                        key={index}
+                                        style={{
+                                            fontSize: 12,
+                                            padding: "4px 10px",
+                                            borderRadius: 999,
+                                            background: "rgba(0,0,0,0.05)",
+                                            border: "1px solid rgba(0,0,0,0.08)",
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        {kw}
+                                    </span>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
                     {/* ================= META ================= */}
                     <motion.div variants={itemVariants}>
                         <div

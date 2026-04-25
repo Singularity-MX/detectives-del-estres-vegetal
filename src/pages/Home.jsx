@@ -85,16 +85,16 @@ const Home = () => {
                     logoText={<img src={letras} alt="text" style={{ height: 20 }} />}
                 />
 
-              <main
-  style={{
-    flex: 1,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "16px 24px",
-    marginTop: 4, // 🔥 espacio real del navbar
-  }}
->
+                <main
+                    style={{
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "16px 24px",
+                        marginTop: 4,
+                    }}
+                >
                     {loading ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -109,20 +109,20 @@ const Home = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                           <HeroCard
-    image={hoja}
-    title="Detectives del estrés vegetal"
-    description="Taller práctico donde se analizan hojas de plantas mediante valores RGB para estimar su estado de salud, integrando conceptos de visión computacional, biología vegetal y análisis de datos."
-    meta={{
-        "📅 Fecha": "09 de mayo del 2026",
-        "⏰ Hora": "12:00 PM - 13:30 PM",
-        "📍 Lugar": "IMJU Parque Hidalgo",
-        "🧑‍🔬 Edad": "+12 años",
-        "👥 Cupo": "35 participantes",
-    }}
-    buttonText="Comenzar"
-    onClick={() => navigate("/scan")}
-/>
+                            <HeroCard
+                                image={hoja}
+                                title="Detectives del estrés vegetal"
+                                description="Taller práctico donde se analizan hojas de plantas mediante valores RGB para estimar su estado de salud, integrando conceptos de visión computacional, biología vegetal y análisis de datos."
+                                meta={{
+                                    "📅 Fecha": "09 de mayo del 2026",
+                                    "⏰ Hora": "12:00 PM - 13:30 PM",
+                                    "📍 Lugar": "IMJU Parque Hidalgo",
+                                    "🧑‍🔬 Edad": "+12 años",
+                                    "👥 Cupo": "45 participantes",
+                                }}
+                                buttonText="Comenzar"
+                                onClick={() => navigate("/scan")}
+                            />
                         </motion.div>
                     )}
                 </main>

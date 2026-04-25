@@ -12,7 +12,7 @@ const Background = () => (
     <div
         style={{
             position: "fixed",
-            inset: 0, 
+            inset: 0,
             zIndex: 0,
             pointerEvents: "none",
             overflow: "hidden",
@@ -71,15 +71,15 @@ const Scan = () => {
                 />
 
                 <main
-    style={{
-        height: "calc(100dvh - 64px)", 
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "16px 24px",
-    }}
->
-                 <ScanCard />
+                    style={{
+                        height: "calc(100dvh - 64px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "16px 24px",
+                    }}
+                >
+                    <ScanCard />
                 </main>
             </div>
         </Layout>

@@ -142,12 +142,12 @@ const SingularityCard = ({
                         </Space>
                     </div>
 
-                    {/* FOOTER CTA opcional */}
+                    {/* FOOTER CTA */}
                     <div style={{ marginTop: isMobile ? 16 : 24 }}>
                         <Button
                             type="primary"
                             block
-                            onClick={()=>{window.open("https://singularitymx.org/")}}
+                            onClick={() => { window.open("https://singularitymx.org/") }}
                             style={{
                                 height: 44,
                                 borderRadius: 10,

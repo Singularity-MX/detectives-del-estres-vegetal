@@ -11,19 +11,19 @@ export const useImageAnalysis = () => {
   const [points, setPoints] = useState([]);
   const [mode, setMode] = useState("single");
 
-const handleFile = (file) => {
-  if (!file) return;
+  const handleFile = (file) => {
+    if (!file) return;
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = (e) => {
-    setImageSrc(e.target.result); // base64
-    setPoints([]);
-    setRgb({ r: "-", g: "-", b: "-" });
+    reader.onload = (e) => {
+      setImageSrc(e.target.result);
+      setPoints([]);
+      setRgb({ r: "-", g: "-", b: "-" });
+    };
+
+    reader.readAsDataURL(file);
   };
-
-  reader.readAsDataURL(file);
-};
 
   const handleClick = (e) => {
     const imgEl = imgRef.current;
@@ -43,14 +43,28 @@ const handleFile = (file) => {
     const ctx = canvas.getContext("2d");
     const avg = getAveragePixel(ctx, realX, realY);
 
+    
+    if (!avg) return;
+
     if (mode === "single") {
       setPoints([{ x: clickX, y: clickY, ...avg }]);
       setRgb(avg);
     } else {
       const updated = [...points, { x: clickX, y: clickY, ...avg }];
+
       setPoints(updated);
 
-      const sum = updated.reduce(
+      // ⚠️ asegurar que solo promedias valores válidos
+      const valid = updated.filter(
+        (p) => p.r != null && p.g != null && p.b != null
+      );
+
+      if (valid.length === 0) {
+        setRgb({ r: "-", g: "-", b: "-" });
+        return;
+      }
+
+      const sum = valid.reduce(
         (a, p) => ({
           r: a.r + p.r,
           g: a.g + p.g,
@@ -60,9 +74,9 @@ const handleFile = (file) => {
       );
 
       setRgb({
-        r: Math.round(sum.r / updated.length),
-        g: Math.round(sum.g / updated.length),
-        b: Math.round(sum.b / updated.length),
+        r: Math.round(sum.r / valid.length),
+        g: Math.round(sum.g / valid.length),
+        b: Math.round(sum.b / valid.length),
       });
     }
   };

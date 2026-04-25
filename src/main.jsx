@@ -2,6 +2,7 @@
 import './index.css'
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router";
+import 'katex/dist/katex.min.css';
 
 const root = document.getElementById("root");
 

@@ -4,6 +4,23 @@ import { motion } from "framer-motion";
 import { BlockMath } from "react-katex";
 import absorbancia from "../../../assets/imgs/absorbancia.jpg";
 import arbol from "../../../assets/imgs/arbol.png";
+import katex from "katex";
+import { useEffect, useRef } from "react";
+
+const MathBlock = ({ formula }) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      katex.render(formula, ref.current, {
+        throwOnError: false,
+        displayMode: true,
+      });
+    }
+  }, [formula]);
+
+  return <div ref={ref} />;
+};
 
 const { Title, Text, Paragraph } = Typography;
 const { useBreakpoint } = Grid;
@@ -240,7 +257,7 @@ const WikiModel = () => {
         </Paragraph>
 
         <div style={{ marginTop: 30 }}>
-          <BlockMath math={"NDVI = \\frac{NIR - RED}{NIR + RED}"} />
+         <MathBlock formula={"NDVI = \\frac{NIR - RED}{NIR + RED}"} />
         </div>
 
         <Card style={{ marginTop: 18, borderRadius: 12 }}>
@@ -265,7 +282,7 @@ const WikiModel = () => {
         </Paragraph>
 
         <div style={{ marginTop: 30 }}>
-          <BlockMath math={"ICV \\; \\approx \\; ExG = \\frac{2G - R - B}{R + G + B}"} />
+          <MathBlock formula={"ICV \\; \\approx \\; ExG = \\frac{2G - R - B}{R + G + B}"} />
         </div>
 
         <Card style={{ marginTop: 18, borderRadius: 12 }}>

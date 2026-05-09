@@ -53,8 +53,6 @@ export const useImageAnalysis = () => {
       const updated = [...points, { x: clickX, y: clickY, ...avg }];
 
       setPoints(updated);
-
-      // ⚠️ asegurar que solo promedias valores válidos
       const valid = updated.filter(
         (p) => p.r != null && p.g != null && p.b != null
       );

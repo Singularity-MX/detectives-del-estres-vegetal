@@ -84,7 +84,7 @@ const Information = () => {
         >
             <Background />
 
-            {/* ROOT ANIMATED WRAPPER */}
+           
             <motion.div
                 style={{
                     position: "relative",

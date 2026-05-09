@@ -125,7 +125,6 @@ const Navbar = ({
                             </Button>
                         </div>
 
-                        {/* CENTRADO REAL */}
                         <div
                             style={{
                                 position: "absolute",
@@ -151,7 +150,6 @@ const Navbar = ({
                             />
                         </div>
 
-                        {/* ESTILOS */}
                         <style>
                             {`
                                 .ant-menu-item {
